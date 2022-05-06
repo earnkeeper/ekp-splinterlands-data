@@ -1,3 +1,4 @@
+import { Cluster } from '@earnkeeper/ekp-sdk-nestjs';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import 'module-alias/register';
@@ -9,4 +10,4 @@ const scheduleBootstrap = async () => {
   await app.init();
 };
 
-scheduleBootstrap();
+Cluster.register(8, scheduleBootstrap);

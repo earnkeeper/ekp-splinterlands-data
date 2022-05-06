@@ -246,7 +246,7 @@ export class BattleRepository {
       query.leagueGroup = leagueGroup;
     }
 
-    return this.battleModel.where(query).sort('timestamp').exec();
+    return this.battleModel.where(query).limit(10000).sort('-timestamp').exec();
   }
 
   async save(battles: Battle[]): Promise<void> {

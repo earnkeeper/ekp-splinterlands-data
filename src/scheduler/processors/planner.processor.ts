@@ -1,17 +1,59 @@
-import { PlannerTeamRepository } from '@/shared/db';
+import { BattleRepository, PlannerTeamRepository } from '@/shared/db';
 import { PlannerTeam } from '@/shared/db/plannerTeam';
-import { LEAGUE_GROUPS, ResultsService } from '@/shared/game';
+import { CardService, LEAGUE_GROUPS } from '@/shared/game';
+import { FREE_DAYS_TO_KEEP, PREMIUM_DAYS_TO_KEEP } from '@/util';
 import { ApmService, logger } from '@earnkeeper/ekp-sdk-nestjs';
+import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
+import { Job, Queue } from 'bull';
 import _ from 'lodash';
+import moment from 'moment';
+import getTeamResults from './results';
 
 @Injectable()
+@Processor('planner')
 export class PlannerProcessor {
   constructor(
     private apmService: ApmService,
-    private resultsService: ResultsService,
+    private battleRepository: BattleRepository,
     private plannerTeamRepository: PlannerTeamRepository,
+    private cardService: CardService,
+    @InjectQueue('planner') private plannerQueue: Queue,
   ) {}
+
+  @Process()
+  async processTeams(job: Job) {
+    const { manaCap, leagueGroup, subscribed, battles } = job.data;
+
+    logger.debug(
+      `Processing ${battles.length} battles for ${leagueGroup} (${manaCap})`,
+    );
+
+    const teams = getTeamResults(job);
+
+    const teamDocuments = _.chain(teams)
+      .map((team) => {
+        const document: PlannerTeam = {
+          battles: team.battles,
+          wins: team.wins,
+          rulesets: team.rulesets,
+          summoner: team.summoner,
+          monsters: team.monsters,
+          manaCap,
+          leagueGroup,
+          subscribed,
+          battlesTotal: battles?.length,
+          battlesStart: battles[0]?.timestampDate,
+        };
+        return document;
+      })
+      .value();
+
+    await this.plannerTeamRepository.save(teamDocuments);
+
+    logger.debug(`Finished processing teams for ${leagueGroup} (${manaCap})`);
+  }
+
   async process() {
     try {
       const manaCaps: number[] = _.chain(_.range(12, 50)).union([99]).value();
@@ -22,45 +64,31 @@ export class PlannerProcessor {
 
       const subscribed = true;
 
+      const cardTemplatesMap = await this.cardService.getAllCardTemplatesMap();
+
       for (const manaCap of manaCaps) {
         await Promise.all(
           leagueGroups.map(async (leagueGroup) => {
             logger.debug(`Fetching battles for ${leagueGroup} (${manaCap})`);
 
-            const { teams, battles } = await this.resultsService.getTeamResults(
+            const fetchSince = !subscribed
+              ? moment().subtract(FREE_DAYS_TO_KEEP, 'days').unix()
+              : moment().subtract(PREMIUM_DAYS_TO_KEEP, 'days').unix();
+
+            const battles = await this.battleRepository.findBattleByManaCap(
+              manaCap,
+              leagueGroup,
+              fetchSince,
+            );
+
+            await this.plannerQueue.add({
+              minBattles: 5,
+              battles,
+              cardTemplatesMap,
               manaCap,
               leagueGroup,
               subscribed,
-              5,
-            );
-
-            logger.debug(
-              `Processing ${battles.length} for ${leagueGroup} (${manaCap})`,
-            );
-
-            const teamDocuments = _.chain(teams)
-              .map((team) => {
-                const document: PlannerTeam = {
-                  battles: team.battles,
-                  wins: team.wins,
-                  rulesets: team.rulesets,
-                  summoner: team.summoner,
-                  monsters: team.monsters,
-                  manaCap,
-                  leagueGroup,
-                  subscribed,
-                  battlesTotal: battles?.length,
-                  battlesStart: battles[0]?.timestampDate,
-                };
-                return document;
-              })
-              .value();
-
-            await this.plannerTeamRepository.save(teamDocuments);
-
-            logger.debug(
-              `Finished processing teams for ${leagueGroup} (${manaCap})`,
-            );
+            });
           }),
         );
       }
