@@ -25,13 +25,17 @@ export class PlannerProcessor {
       for (const manaCap of manaCaps) {
         await Promise.all(
           leagueGroups.map(async (leagueGroup) => {
-            logger.debug(`Processing teams for ${leagueGroup} (${manaCap})`);
+            logger.debug(`Fetching battles for ${leagueGroup} (${manaCap})`);
 
             const { teams, battles } = await this.resultsService.getTeamResults(
               manaCap,
               leagueGroup,
               subscribed,
               5,
+            );
+
+            logger.debug(
+              `Processing ${battles.length} for ${leagueGroup} (${manaCap})`,
             );
 
             const teamDocuments = _.chain(teams)
