@@ -1,16 +1,16 @@
-import { ApmService, logger } from '@earnkeeper/ekp-sdk-nestjs';
-import { Injectable } from '@nestjs/common';
-import { validate } from 'bycontract';
-import _ from 'lodash';
-import moment from 'moment';
-import { ApiService } from '../shared/api';
+import { ApiService } from '@/shared/api';
 import {
   BattleRepository,
   BATTLE_VERSION,
   Ign,
   IgnRepository,
-} from '../shared/db';
-import { BattleMapper, CardService } from '../shared/game';
+} from '@/shared/db';
+import { BattleMapper, CardService } from '@/shared/game';
+import { ApmService, logger } from '@earnkeeper/ekp-sdk-nestjs';
+import { Injectable } from '@nestjs/common';
+import { validate } from 'bycontract';
+import _ from 'lodash';
+import moment from 'moment';
 
 @Injectable()
 export class BattleProcessor {
@@ -21,6 +21,18 @@ export class BattleProcessor {
     private cardService: CardService,
     private ignRepository: IgnRepository,
   ) {}
+
+  async process() {
+    try {
+      await this.storeBattleIgns();
+      await this.storeLeaderIgns();
+      await this.fetchIgnBattles();
+    } catch (error) {
+      this.apmService.captureError(error);
+      console.error(error);
+      logger.error(error);
+    }
+  }
 
   async fetchIgnBattles() {
     const ago = moment().subtract(2, 'hours').unix();
@@ -65,18 +77,6 @@ export class BattleProcessor {
     }
 
     await this.ignRepository.save(igns);
-  }
-
-  async fetchBattleTransactions() {
-    try {
-      await this.storeBattleIgns();
-      await this.storeLeaderIgns();
-      await this.fetchIgnBattles();
-    } catch (error) {
-      this.apmService.captureError(error);
-      console.error(error);
-      logger.error(error);
-    }
   }
 
   async storeBattleIgns() {

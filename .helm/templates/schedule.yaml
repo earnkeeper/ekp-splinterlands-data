@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: nodejs
-          image: '{{ .Values.werf.image.app }}'
+          image: '{{ .Values.werf.image.schedule }}'
           workingDir: /app
           env:
             - name: EKP_PLUGIN_ID
@@ -44,5 +44,3 @@ spec:
               value: '{{ .Values.proxy.host }}'
             - name: PROXY_PORT
               value: '{{ .Values.proxy.port }}'
-            - name: PROCESS_TYPE
-              value: 'SCHEDULE'

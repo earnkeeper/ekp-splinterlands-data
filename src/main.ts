@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import 'module-alias/register';
-import { ScheduleApp } from './schedule.app';
+import { MainModule } from './main.module';
 
 const scheduleBootstrap = async () => {
-  const app = await NestFactory.create<NestExpressApplication>(ScheduleApp);
+  const app = await NestFactory.create<NestExpressApplication>(MainModule);
   app.enableShutdownHooks();
   await app.init();
 };

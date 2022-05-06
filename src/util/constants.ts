@@ -1,34 +1,3 @@
-import {
-  CollectionForm,
-  HistoryForm,
-  LeaderboardForm,
-  MarketplaceForm,
-  PlannerForm,
-} from './forms';
-
-export const DEFAULT_PLANNER_FORM: PlannerForm = {
-  leagueGroup: 'All',
-  manaCap: 13,
-  playerName: '',
-};
-
-export const DEFAULT_LEADERBOARD_FORM: LeaderboardForm = {
-  leagueGroup: 'Bronze',
-  season: 84,
-};
-
-export const DEFAULT_MARKETPLACE_FORM: MarketplaceForm = {
-  leagueGroup: 'All',
-};
-
-export const DEFAULT_HISTORY_FORM: HistoryForm = {
-  playerName: '',
-};
-
-export const DEFAULT_COLLECTION_FORM: CollectionForm = {
-  playerName: '',
-};
-
 export const LEADERBOARD_LEAGUES = [
   {
     id: 0,

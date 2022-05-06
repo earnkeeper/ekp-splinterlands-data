@@ -1,24 +1,22 @@
 import { logger } from '@earnkeeper/ekp-sdk-nestjs';
-import { Cron } from '@nestjs/schedule';
-import { BattleProcessor } from './battle.processor';
-import { CardProcessor } from './card.processor';
-import { StatsProcessor } from './stats.processor';
 import { Injectable } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
+import { BattleProcessor } from './processors/battle.processor';
+import { PlannerProcessor } from './processors/planner.processor';
 
 @Injectable()
-export class ScheduleService {
+export class SchedulerService {
   constructor(
     private battleProcessor: BattleProcessor,
-    private cardProcessor: CardProcessor,
-    private statsProcessor: StatsProcessor,
+    private plannerProcessor: PlannerProcessor,
   ) {}
 
   private every10minutesBusy = false;
   private every2hoursBusy = false;
 
   async onModuleInit() {
-    await this.every10minutes();
-    await this.every2hours();
+    this.every10minutes();
+    this.every2hours();
   }
 
   @Cron('0 */10 * * * *')
@@ -27,10 +25,15 @@ export class ScheduleService {
       logger.warn('Skipping every10minutes schedule, it is already running');
       return;
     }
+
     this.every10minutesBusy = true;
+
     try {
-      await this.battleProcessor.fetchBattleTransactions();
-      await this.cardProcessor.groupCards();
+      await this.battleProcessor.process();
+      await Promise.all([
+        // this.marketProcessor.process(),
+        this.plannerProcessor.process(),
+      ]);
     } finally {
       this.every10minutesBusy = false;
     }
@@ -42,9 +45,11 @@ export class ScheduleService {
       logger.warn('Skipping every2hours schedule, it is already running');
       return;
     }
+
     this.every2hoursBusy = true;
+
     try {
-      await this.statsProcessor.processBattleStats();
+      //   await this.statsProcessor.process();
     } finally {
       this.every2hoursBusy = false;
     }

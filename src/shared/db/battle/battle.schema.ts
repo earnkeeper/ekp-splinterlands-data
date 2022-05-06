@@ -113,4 +113,9 @@ export const BattleSchema = SchemaFactory.createForClass(Battle)
   .index({
     source: 1,
     manaCap: 1,
+  })
+  .index({
+    manaCap: 1,
+    leagueGroup: 1,
+    timestamp: 1,
   });

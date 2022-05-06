@@ -1,6 +1,6 @@
 configVersion: 1
-project: splinterlands-utils
+project: splinterlands-data
 ---
-image: app
+image: schedule
 dockerfile: Dockerfile
 context: .
