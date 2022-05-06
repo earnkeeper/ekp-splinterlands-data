@@ -4,10 +4,13 @@ import { Document } from 'mongoose';
 
 export type PlannerTeamDocument = PlannerTeam & Document;
 
-@Schema({ collection: 'planner_team_v2' })
+@Schema({ collection: 'planner_team_v3' })
 export class PlannerTeam {
-  @Prop({ index: true })
+  @Prop()
   readonly id: string;
+
+  @Prop()
+  readonly updated: number;
 
   @Prop()
   readonly battles: number;
@@ -24,8 +27,8 @@ export class PlannerTeam {
   @Prop({ type: 'array' })
   readonly monsters: Card[];
 
-  @Prop({ type: Date })
-  readonly battlesStart: Date;
+  @Prop()
+  readonly battlesStart: number;
 
   @Prop()
   readonly manaCap: number;

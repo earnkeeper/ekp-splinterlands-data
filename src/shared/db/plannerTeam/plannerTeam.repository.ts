@@ -38,4 +38,12 @@ export class PlannerTeamRepository {
       }),
     );
   }
+
+  async deleteBefore(updated: number) {
+    validate([updated], ['number']);
+
+    await this.model.deleteMany({
+      updated: { $lt: updated },
+    });
+  }
 }

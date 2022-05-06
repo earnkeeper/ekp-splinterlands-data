@@ -23,7 +23,7 @@ export class PlannerProcessor {
 
   @Process()
   async processTeams(job: Job) {
-    const { manaCap, leagueGroup, subscribed, battles } = job.data;
+    const { manaCap, leagueGroup, subscribed, battles, updated } = job.data;
 
     logger.debug(
       `Processing ${battles.length} battles for ${leagueGroup} (${manaCap})`,
@@ -35,6 +35,7 @@ export class PlannerProcessor {
       .map((team) => {
         const document: PlannerTeam = {
           id: team.id,
+          updated: updated,
           battles: team.battles,
           wins: team.wins,
           rulesets: team.rulesets,
@@ -44,7 +45,10 @@ export class PlannerProcessor {
           leagueGroup,
           subscribed,
           battlesTotal: battles?.length,
-          battlesStart: battles[0]?.timestampDate,
+          battlesStart: _.chain(battles)
+            .map((it) => it.timestamp)
+            .min()
+            .value(),
         };
         return document;
       })
@@ -58,8 +62,11 @@ export class PlannerProcessor {
   }
 
   async process() {
+    const updated = moment().unix();
+
     try {
       const manaCaps: number[] = _.chain(_.range(12, 50)).union([99]).value();
+
       const leagueGroups = _.chain(LEAGUE_GROUPS)
         .map((it) => it.name)
         .union(['All'])
@@ -91,10 +98,13 @@ export class PlannerProcessor {
               manaCap,
               leagueGroup,
               subscribed,
+              updated,
             });
           }),
         );
       }
+
+      await this.plannerTeamRepository.deleteBefore(updated);
     } catch (error) {
       this.apmService.captureError(error);
       console.error(error);
