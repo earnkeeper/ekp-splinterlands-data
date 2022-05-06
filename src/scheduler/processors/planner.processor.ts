@@ -34,6 +34,7 @@ export class PlannerProcessor {
     const teamDocuments = _.chain(teams)
       .map((team) => {
         const document: PlannerTeam = {
+          id: team.id,
           battles: team.battles,
           wins: team.wins,
           rulesets: team.rulesets,
@@ -51,7 +52,9 @@ export class PlannerProcessor {
 
     await this.plannerTeamRepository.save(teamDocuments);
 
-    logger.debug(`Finished processing teams for ${leagueGroup} (${manaCap})`);
+    logger.debug(
+      `Finished processing ${teams.length} teams for ${leagueGroup} (${manaCap})`,
+    );
   }
 
   async process() {
@@ -82,7 +85,7 @@ export class PlannerProcessor {
             );
 
             await this.plannerQueue.add({
-              minBattles: 5,
+              minBattles: 2,
               battles,
               cardTemplatesMap,
               manaCap,

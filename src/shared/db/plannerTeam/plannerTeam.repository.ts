@@ -24,6 +24,7 @@ export class PlannerTeamRepository {
         return {
           updateOne: {
             filter: {
+              id: model.id,
               leagueGroup: model.leagueGroup,
               manaCap: model.manaCap,
               subscribed: model.subscribed,

@@ -4,8 +4,11 @@ import { Document } from 'mongoose';
 
 export type PlannerTeamDocument = PlannerTeam & Document;
 
-@Schema({ collection: 'planner_team' })
+@Schema({ collection: 'planner_team_v2' })
 export class PlannerTeam {
+  @Prop({ index: true })
+  readonly id: string;
+
   @Prop()
   readonly battles: number;
 
@@ -37,6 +40,9 @@ export class PlannerTeam {
   readonly battlesTotal: number;
 }
 
-export const PlannerTeamSchema = SchemaFactory.createForClass(
-  PlannerTeam,
-).index({ manaCap: 1, leagueGroup: 1, subscribed: 1 }, { unique: true });
+export const PlannerTeamSchema = SchemaFactory.createForClass(PlannerTeam)
+  .index({ manaCap: 1, leagueGroup: 1, subscribed: 1 })
+  .index(
+    { id: 1, manaCap: 1, leagueGroup: 1, subscribed: 1 },
+    { unique: true },
+  );
