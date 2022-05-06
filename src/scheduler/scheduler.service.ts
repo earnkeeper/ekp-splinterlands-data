@@ -29,7 +29,7 @@ export class SchedulerService {
     this.every10minutesBusy = true;
 
     try {
-      await this.battleProcessor.process();
+      // await this.battleProcessor.process();
       await Promise.all([
         // this.marketProcessor.process(),
         this.plannerProcessor.process(),
