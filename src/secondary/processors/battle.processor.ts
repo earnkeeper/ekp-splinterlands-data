@@ -6,29 +6,28 @@ import {
   IgnRepository,
 } from '@/shared/db';
 import { BattleMapper, CardService } from '@/shared/game';
-import { ApmService, logger } from '@earnkeeper/ekp-sdk-nestjs';
-import { Injectable } from '@nestjs/common';
+import { logger } from '@earnkeeper/ekp-sdk-nestjs';
+import { Process, Processor } from '@nestjs/bull';
 import { validate } from 'bycontract';
 import _ from 'lodash';
 import moment from 'moment';
 
-@Injectable()
+@Processor('battles')
 export class BattleProcessor {
   constructor(
     private apiService: ApiService,
-    private apmService: ApmService,
     private battleRepository: BattleRepository,
     private cardService: CardService,
     private ignRepository: IgnRepository,
   ) {}
 
+  @Process()
   async process() {
     try {
       await this.storeBattleIgns();
       await this.storeLeaderIgns();
       await this.fetchIgnBattles();
     } catch (error) {
-      this.apmService.captureError(error);
       console.error(error);
       logger.error(error);
     }

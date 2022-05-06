@@ -24,14 +24,8 @@ spec:
               value: '{{ .Chart.Name }}'
             - name: EKP_PLUGIN_NAME
               value: '.'
-            - name: MONGO_HOST
-              value: '{{ .Values.mongodb.host }}'
-            - name: MONGO_DB_NAME
-              value: '{{ .Values.mongodb.db }}'
-            - name: MONGO_USER
-              value: '{{ .Values.mongodb.user }}'
-            - name: MONGO_PASSWORD
-              value: '{{ .Values.mongodb.password }}'
+            - name: MONGO_URI
+              value: '{{ .Values.mongodb.uri }}'
             - name: REDIS_HOST
               value: '{{ .Values.redis.host }}'
             - name: REDIS_PASSWORD
