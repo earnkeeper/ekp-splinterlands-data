@@ -27,11 +27,7 @@ spec:
             - name: MONGO_URI
               value: '{{ .Values.mongodb.uri }}'
             - name: REDIS_HOST
-              value: '{{ .Values.redis.host }}'
-            - name: REDIS_PASSWORD
-              value: '{{ .Values.redis.password }}'
-            - name: REDIS_DB
-              value: '{{ .Values.redis.db }}'
+              value: '{{ .Release.Name }}-redis-master'
             - name: NODE_ENV
               value: '{{ .Values.werf.env | default "production" }}'
             - name: PROXY_HOST
