@@ -67,6 +67,10 @@ export class TeamsProcessor {
 
       const teamDocuments = _.values(plannerTeamMap);
 
+      logger.debug(
+        `Saving ${teamDocuments.length} teams to the database for ${leagueGroup} (${manaCap})`,
+      );
+
       await this.plannerTeamRepository.save(teamDocuments);
 
       logger.debug(
