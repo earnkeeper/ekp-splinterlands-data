@@ -6,15 +6,15 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DbModule } from '../shared/db/db.module';
-import { PlannerProcessor } from './processors/planner.processor';
 import { BattleProcessor } from './processors/battle.processor';
+import { PlannerProcessor } from './processors/planner.processor';
 import { TeamsProcessor } from './processors/teams.processor';
 
 export const MODULE_DEF = {
   imports: [
     MongooseModule.forRoot(
       config('MONGO_URI', {
-        default: `mongodb://localhost:27017/${config('EKP_PLUGIN_ID')}`,
+        default: ``,
       }),
     ),
     BullModule.registerQueue(

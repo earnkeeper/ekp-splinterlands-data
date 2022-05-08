@@ -1,6 +1,5 @@
 import { BattleRepository, PlannerTeamRepository } from '@/shared/db';
 import { CardService, LEAGUE_GROUPS } from '@/shared/game';
-import { FREE_DAYS_TO_KEEP, PREMIUM_DAYS_TO_KEEP } from '@/util';
 import { logger } from '@earnkeeper/ekp-sdk-nestjs';
 import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Queue } from 'bull';
@@ -28,8 +27,6 @@ export class PlannerProcessor {
         .union(['All'])
         .value();
 
-      const subscribed = true;
-
       const cardTemplatesMap = await this.cardService.getAllCardTemplatesMap();
 
       for (const manaCap of manaCaps) {
@@ -37,25 +34,54 @@ export class PlannerProcessor {
           leagueGroups.map(async (leagueGroup) => {
             logger.debug(`Fetching battles for ${leagueGroup} (${manaCap})`);
 
-            const fetchSince = !subscribed
-              ? moment().subtract(FREE_DAYS_TO_KEEP, 'days').unix()
-              : moment().subtract(PREMIUM_DAYS_TO_KEEP, 'days').unix();
+            const BATTLE_LIMIT = 5000;
 
-            const battles = await this.battleRepository.findBattleByManaCap(
-              manaCap,
-              leagueGroup,
-              fetchSince,
-            );
+            while (true) {
+              const plannerTeams =
+                await this.plannerTeamRepository.findByLeagueGroupAndManaCap(
+                  leagueGroup,
+                  manaCap,
+                );
 
-            await this.teamsQueue.add({
-              minBattles: 2,
-              battles,
-              cardTemplatesMap,
-              manaCap,
-              leagueGroup,
-              subscribed,
-              updated,
-            });
+              let latestTimestamp = 0;
+
+              if (!!plannerTeams?.length) {
+                latestTimestamp = _.chain(plannerTeams)
+                  .maxBy('latestTimestamp')
+                  .get('latestTimestamp')
+                  .value();
+              }
+
+              const battles = await this.battleRepository.findBattleByManaCap(
+                manaCap,
+                leagueGroup,
+                latestTimestamp,
+                BATTLE_LIMIT,
+              );
+
+              if (battles.length === 0) {
+                logger.debug(
+                  `No more battles found for ${leagueGroup} (${manaCap})`,
+                );
+                break;
+              }
+
+              await this.teamsQueue.add({
+                battles,
+                cardTemplatesMap,
+                manaCap,
+                leagueGroup,
+                updated,
+                plannerTeams,
+              });
+
+              if (battles.length < BATTLE_LIMIT) {
+                logger.debug(
+                  `No more battles found for ${leagueGroup} (${manaCap})`,
+                );
+                break;
+              }
+            }
           }),
         );
       }

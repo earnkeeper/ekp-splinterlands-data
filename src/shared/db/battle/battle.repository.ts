@@ -225,6 +225,7 @@ export class BattleRepository {
     manaCap: number,
     leagueGroup: string,
     startTimestamp: number,
+    limit: number,
   ): Promise<Battle[]> {
     validate(
       [manaCap, leagueGroup, startTimestamp],
@@ -246,7 +247,7 @@ export class BattleRepository {
       query.leagueGroup = leagueGroup;
     }
 
-    return this.battleModel.where(query).limit(10000).sort('-timestamp').exec();
+    return this.battleModel.where(query).limit(limit).sort('-timestamp').exec();
   }
 
   async save(battles: Battle[]): Promise<void> {

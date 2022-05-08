@@ -6,6 +6,20 @@ import { PlannerTeam } from './plannerTeam.schema';
 
 @Injectable()
 export class PlannerTeamRepository {
+  findByLeagueGroupAndManaCap(
+    leagueGroup: any,
+    manaCap: any,
+  ): Promise<PlannerTeam[]> {
+    validate([manaCap, leagueGroup], ['number', 'string']);
+
+    return this.model
+      .where({
+        manaCap,
+        leagueGroup,
+      })
+      .exec();
+  }
+
   constructor(
     @InjectModel(PlannerTeam.name)
     public model: Model<PlannerTeam>,
@@ -27,7 +41,6 @@ export class PlannerTeamRepository {
               id: model.id,
               leagueGroup: model.leagueGroup,
               manaCap: model.manaCap,
-              subscribed: model.subscribed,
             },
             update: {
               $set: model,
