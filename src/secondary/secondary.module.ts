@@ -16,6 +16,7 @@ export const MODULE_DEF = {
       config('MONGO_URI', {
         default: ``,
       }),
+      { autoIndex: true },
     ),
     BullModule.registerQueue(
       { name: 'teams' },
