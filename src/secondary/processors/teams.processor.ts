@@ -12,41 +12,46 @@ export class TeamsProcessor {
 
   @Process()
   async process(job: Job) {
-    const { manaCap, leagueGroup, subscribed, battles, updated } = job.data;
+    try {
+      const { manaCap, leagueGroup, subscribed, battles, updated } = job.data;
 
-    logger.debug(
-      `Processing ${battles.length} battles for ${leagueGroup} (${manaCap})`,
-    );
+      logger.debug(
+        `Processing ${battles.length} battles for ${leagueGroup} (${manaCap})`,
+      );
 
-    const teams = getTeamResults(job);
+      const teams = getTeamResults(job);
 
-    const teamDocuments = _.chain(teams)
-      .map((team) => {
-        const document: PlannerTeam = {
-          id: team.id,
-          updated: updated,
-          battles: team.battles,
-          wins: team.wins,
-          rulesets: team.rulesets,
-          summoner: team.summoner,
-          monsters: team.monsters,
-          manaCap,
-          leagueGroup,
-          subscribed,
-          battlesTotal: battles?.length,
-          battlesStart: _.chain(battles)
-            .map((it) => it.timestamp)
-            .min()
-            .value(),
-        };
-        return document;
-      })
-      .value();
+      const teamDocuments = _.chain(teams)
+        .map((team) => {
+          const document: PlannerTeam = {
+            id: team.id,
+            updated: updated,
+            battles: team.battles,
+            wins: team.wins,
+            rulesets: team.rulesets,
+            summoner: team.summoner,
+            monsters: team.monsters,
+            manaCap,
+            leagueGroup,
+            subscribed,
+            battlesTotal: battles?.length,
+            battlesStart: _.chain(battles)
+              .map((it) => it.timestamp)
+              .min()
+              .value(),
+          };
+          return document;
+        })
+        .value();
 
-    await this.plannerTeamRepository.save(teamDocuments);
+      await this.plannerTeamRepository.save(teamDocuments);
 
-    logger.debug(
-      `Finished processing ${teams.length} teams for ${leagueGroup} (${manaCap})`,
-    );
+      logger.debug(
+        `Finished processing ${teams.length} teams for ${leagueGroup} (${manaCap})`,
+      );
+    } catch (error) {
+      logger.error(error);
+      console.error(error);
+    }
   }
 }
