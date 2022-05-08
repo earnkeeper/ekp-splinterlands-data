@@ -12,12 +12,7 @@ import { TeamsProcessor } from './processors/teams.processor';
 
 export const MODULE_DEF = {
   imports: [
-    MongooseModule.forRoot(
-      config('MONGO_URI', {
-        default: ``,
-      }),
-      { autoIndex: true },
-    ),
+    MongooseModule.forRoot(config('MONGO_URI'), { autoIndex: true }),
     BullModule.registerQueue(
       { name: 'teams' },
       { name: 'battles' },

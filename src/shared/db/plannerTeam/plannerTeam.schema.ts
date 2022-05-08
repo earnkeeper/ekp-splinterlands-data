@@ -4,9 +4,9 @@ import { Document } from 'mongoose';
 
 export type PlannerTeamDocument = PlannerTeam & Document;
 
-@Schema({ collection: 'planner_team_v4' })
+@Schema({ collection: 'planner_team_v5' })
 export class PlannerTeam {
-  @Prop()
+  @Prop({ type: String })
   readonly id: string;
 
   @Prop()
@@ -21,10 +21,10 @@ export class PlannerTeam {
   @Prop({ type: 'array' })
   readonly monsters: Card[];
 
-  @Prop()
+  @Prop({ type: Number })
   readonly manaCap: number;
 
-  @Prop()
+  @Prop({ type: String })
   readonly leagueGroup: string;
 
   @Prop()
