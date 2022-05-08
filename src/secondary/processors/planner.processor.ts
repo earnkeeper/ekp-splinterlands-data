@@ -66,14 +66,19 @@ export class PlannerProcessor {
                 break;
               }
 
-              await this.teamsQueue.add({
-                battles,
-                cardTemplatesMap,
-                manaCap,
-                leagueGroup,
-                updated,
-                plannerTeams,
-              });
+              await this.teamsQueue.add(
+                {
+                  battles,
+                  cardTemplatesMap,
+                  manaCap,
+                  leagueGroup,
+                  updated,
+                  plannerTeams,
+                },
+                {
+                  removeOnComplete: true,
+                },
+              );
 
               if (battles.length < BATTLE_LIMIT) {
                 logger.debug(
