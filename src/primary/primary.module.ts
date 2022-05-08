@@ -28,7 +28,7 @@ export class PrimaryModule {
 
   async onModuleInit() {
     const client = this.redisService.getClient('DEFAULT_CLIENT');
-    await client.flushdb();
+    await client.flushall();
 
     this.battleQueue.add(
       {},
