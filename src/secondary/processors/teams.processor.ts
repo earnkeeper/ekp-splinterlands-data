@@ -1,5 +1,5 @@
 import { PlannerTeamRepository } from '@/shared/db';
-import { PlannerTeam } from '@/shared/db/plannerTeam';
+import { PlannerTeam } from '@/shared/db/planner-team';
 import { BattleMapper, Card, Team } from '@/shared/game';
 import { logger } from '@earnkeeper/ekp-sdk-nestjs';
 import { Process, Processor } from '@nestjs/bull';

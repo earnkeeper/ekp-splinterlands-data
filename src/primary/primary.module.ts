@@ -12,6 +12,7 @@ export const MODULE_DEF = {
       { name: 'teams' },
       { name: 'battles' },
       { name: 'planner' },
+      { name: 'market' },
     ),
     ScheduleModule.forRoot(),
   ],
@@ -24,6 +25,7 @@ export class PrimaryModule {
     private redisService: RedisService,
     @InjectQueue('battles') private battleQueue: Queue,
     @InjectQueue('planner') private plannerQueue: Queue,
+    @InjectQueue('market') private marketQueue: Queue,
   ) {}
 
   async onModuleInit() {
@@ -39,6 +41,14 @@ export class PrimaryModule {
       },
     );
     this.plannerQueue.add(
+      {},
+      {
+        delay: 0,
+        repeat: { every: 10 * 60 * 1000 },
+        removeOnComplete: true,
+      },
+    );
+    this.marketQueue.add(
       {},
       {
         delay: 0,

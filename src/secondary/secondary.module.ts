@@ -7,6 +7,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DbModule } from '../shared/db/db.module';
 import { BattleProcessor } from './processors/battle.processor';
+import { MarketCardProcessor } from './processors/market-card.processor';
 import { PlannerProcessor } from './processors/planner.processor';
 import { TeamsProcessor } from './processors/teams.processor';
 
@@ -17,13 +18,19 @@ export const MODULE_DEF = {
       { name: 'teams' },
       { name: 'battles' },
       { name: 'planner' },
+      { name: 'market' },
     ),
     ApiModule,
     DbModule,
     GameModule,
     SdkModule,
   ],
-  providers: [PlannerProcessor, TeamsProcessor, BattleProcessor],
+  providers: [
+    PlannerProcessor,
+    TeamsProcessor,
+    BattleProcessor,
+    MarketCardProcessor,
+  ],
 };
 
 @Module(MODULE_DEF)

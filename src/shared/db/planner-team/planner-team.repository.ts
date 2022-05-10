@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { validate } from 'bycontract';
 import { Model } from 'mongoose';
-import { PlannerTeam } from './plannerTeam.schema';
+import { PlannerTeam } from './planner-team.schema';
 
 @Injectable()
 export class PlannerTeamRepository {
