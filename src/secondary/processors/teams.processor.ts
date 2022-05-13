@@ -116,9 +116,11 @@ export class TeamsProcessor {
     }
 
     plannerTeam.daily[dayId].battles++;
+    plannerTeam.battles++;
 
     if (win) {
       plannerTeam.daily[dayId].wins++;
+      plannerTeam.wins++;
     }
 
     if (timestamp > plannerTeam.latestTimestamp) {
@@ -126,6 +128,7 @@ export class TeamsProcessor {
     }
 
     plannerTeam.latestTimestamp = timestamp;
+    plannerTeam.updated = updated;
   }
 
   createPlannerTeam(
@@ -138,6 +141,7 @@ export class TeamsProcessor {
   ): PlannerTeam {
     return {
       id: teamId,
+      created: updated,
       updated,
       rulesets,
       summoner: team.summoner,
@@ -146,6 +150,8 @@ export class TeamsProcessor {
       latestTimestamp: 0,
       daily: {},
       leagueGroup,
+      battles: 0,
+      wins: 0,
     };
   }
 

@@ -6,6 +6,11 @@ import { PlannerTeam } from './planner-team.schema';
 
 @Injectable()
 export class PlannerTeamRepository {
+  constructor(
+    @InjectModel(PlannerTeam.name)
+    public model: Model<PlannerTeam>,
+  ) {}
+
   findByLeagueGroupAndManaCap(
     leagueGroup: any,
     manaCap: any,
@@ -19,11 +24,6 @@ export class PlannerTeamRepository {
       })
       .exec();
   }
-
-  constructor(
-    @InjectModel(PlannerTeam.name)
-    public model: Model<PlannerTeam>,
-  ) {}
 
   async save(documents: PlannerTeam[]): Promise<void> {
     validate([documents], ['Array.<object>']);

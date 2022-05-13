@@ -4,13 +4,16 @@ import { Document } from 'mongoose';
 
 export type PlannerTeamDocument = PlannerTeam & Document;
 
-@Schema({ collection: 'planner_team_v5' })
+@Schema({ collection: 'planner_team_v6' })
 export class PlannerTeam {
   @Prop({ type: String })
   readonly id: string;
 
   @Prop()
-  readonly updated: number;
+  readonly created: number;
+
+  @Prop()
+  updated: number;
 
   @Prop([String])
   readonly rulesets: string[];
@@ -23,6 +26,12 @@ export class PlannerTeam {
 
   @Prop({ type: Number })
   readonly manaCap: number;
+
+  @Prop({ type: Number })
+  battles: number;
+
+  @Prop({ type: Number })
+  wins: number;
 
   @Prop({ type: String })
   readonly leagueGroup: string;
